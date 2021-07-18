@@ -1,0 +1,19 @@
+function rul = go_to_point(coord, ang, x, y, sp)  
+    %x_local = (x - coord(1)) * cos(ang) - (y - coord(2)) * sin(ang); 
+    %y_local = (x - coord(1)) * sin(ang) + (y - coord(2)) * cos(ang);
+    vec = [x - coord(1), y - coord(2)]
+    ang_vec = atan2(y - coord(2), x - coord(1))
+    x_local = vec * cos(ang_vec - )
+    %x_local = 0;
+    %y_local = 500;
+    ang_local = atan2(y_local, x_local);
+    
+    fprintf("X: %f, Y: %f, Ang: %f, Sp_X: %f, Sp_Y: %f", coord(1), coord(2), ang_local, sp * cos(ang_local), sp * sin(ang_local));
+    
+    if norm([x - coord(1), y - coord(2)]) < 10
+        rul = Crul(0, 0, 0, 0, 0); 
+    else
+        rul = Crul(0, 0, 0, 0, 0); 
+        %rul = Crul(sp * cos(ang_local), sp * sin(ang_local), 0, 0, 0); 
+    end
+end

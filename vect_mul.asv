@@ -1,0 +1,3 @@
+function res = vect_mul(v, u)
+    res = v(1) * u(2) - v()
+end

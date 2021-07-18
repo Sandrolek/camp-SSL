@@ -1,0 +1,13 @@
+function rul = rotate_to_point(x, y)
+    coord = RP.Blue(2).z;
+    ang = RP.Blue(2).ang
+    ang_target = atan2(x - coord(1), y - coord(2));
+    
+    vec_robo = (cos(ang),)
+    
+    if abs(ang - and_target) < 8
+        rul = Crul(0, 0, 0, 0, 0)
+    else
+        rul = Crul(0, 0, 0, 15, 0)
+    end
+end
