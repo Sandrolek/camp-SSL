@@ -1,13 +1,18 @@
 %% MAIN START HEADER 
  
 global Blues Yellows Balls Rules FieldInfo RefState RefCommandForTeam RefPartOfFieldLeft RP PAR Modul activeAlgorithm gameStatus  
-global sp 
+global state
 sp = 15;
 k = 10;
-R = 250;
+R = 270;
+R_BALL = 150;
  
 if isempty(RP) 
     addpath tools RPtools MODUL 
+end 
+
+if isempty(state) 
+    state = 0;
 end 
 
 mainHeader(); 
@@ -31,42 +36,58 @@ zMain_End=RP.zMain_End;
 
 MY_ROBOT_ID = 7; % tipa define
 
-obstacles = [RP.Blue(1); RP.Blue(2); RP.Blue(3); RP.Blue(4); RP.Blue(5); RP.Blue(6); RP.Blue(8)];
-target = RP.Ball.z;
+obstacles = [RP.Blue(1).z, R; RP.Blue(2).z, R; RP.Blue(3).z, R; RP.Blue(4).z, R; RP.Blue(5).z, R; RP.Blue(6).z, R; RP.Blue(8).z, R; RP.Ball.z, R_BALL];
+ball = RP.Ball.z;
 coord = RP.Blue(MY_ROBOT_ID).z;
 ang = RP.Blue(MY_ROBOT_ID).ang;
-out = 150;
+goal = [-1500, 0];
 
-need_obst = coll_point(coord, target, obstacles, R);
-fprintf("\nneed_obst: ");
-disp(need_obst);
+x1 = ball(1);
+y1 = ball(2);
+x2 = goal(1);
+y2 = goal(2);
+A = (y2 - y1) / (x2 - x1);
+B = -1;
+C = y1 - x1 * A;
 
-if need_obst == 0
-    res_target = target;
-    rot = rotate_to_point(coord, ang, res_target, k);
-else
-    tangent = find_tangent(coord, obstacles(need_obst).z, R, target);
-    fprintf("Tangent: ");
-    disp(tangent);
-    res_target = tangent;
-    
-    fprintf("Coord: ");
-    disp(coord);
-    fprintf("obst: ");
-    disp(obstacles(need_obst).z);
-    fprintf("Norm: %f\n", norm(coord - obstacles(need_obst).z));
-    
-    if norm(coord - obstacles(need_obst).z) < (R + 100)
-        save_target = save_out(coord, obstacles(need_obst).z, out, R);
-        res_target = find_tangent(save_target, obstacles(need_obst).z, R, target);
-        fprintf("Going out");
-    else
-        rot = rotate_to_point(coord, ang, res_target, k);
-    end
+vec = ball - 200 * ([B, -A] / norm([B, -A]));
+fprintf("Coord: ");
+disp(coord);
+fprintf("Ball: ");
+disp(ball);
+fprintf("Vec: ");
+disp(vec);
+
+accur = 50;
+
+switch state
+    case 0 
+        [RP.Blue(MY_ROBOT_ID).rul, res] = reach_obst(coord, vec, ang, obstacles, sp, accur);
+        %fprintf("Res: %d\n", res);
+        if res == 1
+            state = 1;
+        end
+    case 1
+        [rot, rotated] = rotate_to_point(coord, ang, goal, 10);
+        if norm(ball - coord) > 250
+            state = 0;
+        end
+        if rotated
+            fprintf("Rotated");
+            RP.Blue(MY_ROBOT_ID).rul = Crul(12, 0, 0, 0, 0);
+            if norm(ball - coord) < 150
+                fprintf("pinayu\n");
+                RP.Blue(MY_ROBOT_ID).rul = Crul(12, 0, 1, 0, 0);
+            end
+        else
+            fprintf("Not rotated");
+            RP.Blue(MY_ROBOT_ID).rul = Crul(0, 0, 0, rot, 0);
+        end
+        %fprintf("Got to point\n");
+    case 10 
+        RP.Blue(5).rul = go_to_point(RP.Blue(5).z, RP.Blue(5).ang, [500, 500], sp, 0, 150);
+        RP.Blue(MY_ROBOT_ID).rul = go_to_point(coord, ang, [800, 800], sp, 0, 150);
 end
-
-RP.Blue(MY_ROBOT_ID).rul = go_to_point(coord, ang, res_target, sp, rot);
-
 %% END CONTRIL BLOCK 
  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 

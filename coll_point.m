@@ -1,4 +1,4 @@
-function res = coll_point(coord, target, obstacles, R)
+function res = coll_point(coord, target, obstacles)
     % line coord-target
     x1 = coord(1);
     y1 = coord(2);
@@ -13,11 +13,11 @@ function res = coll_point(coord, target, obstacles, R)
     %fprintf("Obstacles: ");
     %disp(obstacles);
     for i = 1:size(obstacles)
-        d = abs(A * obstacles(i).z(1) + B * obstacles(i).z(2) + C) / sqrt(A^2 + B^2);
-        if d <= R
-            fprintf("I: %f, D: %f\n", i, d);
-            point = inter_lines([0, -C/B], [B, -A], [0, (A*obstacles(i).z(2) - B*obstacles(i).z(1))/A], [A, B]);
-            half_chord = sqrt(R^2 - d^2);
+        d = abs(A * obstacles(i, 1) + B * obstacles(i, 2) + C) / sqrt(A^2 + B^2);
+        if d <= obstacles(i, 3)
+            %fprintf("I: %f, D: %f\n", i, d);
+            point = inter_lines([0, -C/B], [B, -A], [0, (A*obstacles(i, 1) - B*obstacles(i, 1))/A], [A, B]);
+            half_chord = sqrt(obstacles(i, 3)^2 - d^2);
             p1 = point + norm_vec([B, -A]) * half_chord;
             p2 = point - norm_vec([B, -A]) * half_chord;
             if (x1 < p1(1) && p1(1) < x2) || (x1 > p2(1) && p2(1) > x2)
@@ -27,19 +27,20 @@ function res = coll_point(coord, target, obstacles, R)
         end
     end
     if size(inters) > 0
-        fprintf("Is obst\n");
+        %fprintf("Is obst\n");
     else
-        fprintf("No obst\n");
+        %fprintf("No obst\n");
     end
     %fprintf("Inters: ");
     %disp(inters);
-    min = 2390030;
+    len_min = 2390030;
     id_min = 1;
-    for i = 1:size(inters)
-        fprintf("Inter is obstacle\n");
-        len_vec = norm([inters(i, 1) - coord(1), inters(i, 2) - coord(2)]);
-        if len_vec < min
-           min = len_vec;
+    sz = size(inters);
+    for i = 1:sz(1)
+        %fprintf("Inter is obstacle\n");
+        len_vec = min([norm(inters(i, 1:2) - coord), norm(inters(i, 3:4) - coord)]);
+        if len_vec < len_min
+           len_min = len_vec;
            id_min = obstacles_inter(i);
         end
     end

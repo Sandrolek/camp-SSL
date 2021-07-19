@@ -1,4 +1,4 @@
-function rot = rotate_to_point(coord, ang, target, k)
+function [rot, res] = rotate_to_point(coord, ang, target, k)
     x = target(1);
     y = target(2);
     u = [cos(ang), sin(ang)];
@@ -10,7 +10,15 @@ function rot = rotate_to_point(coord, ang, target, k)
     
     rot = ang_target * k;
     
-    %rul = Crul(0,0,0,0,0);
+    fprintf("Ang: %f, Ang_targ: %f\n", ang, ang_target);
     
-    fprintf("Ang: %f, Ang_target: %f", ang, ang_target);
+    if abs(ang_target) < (7 * pi / 180)
+        res = 1;
+    else
+        res = 0;
+    end
 end
+
+% предыдущее положение мяча помнить, при ударе учитывать
+% объезд поправить, + save_out
+% +- скорость
