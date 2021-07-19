@@ -79,9 +79,6 @@ switch state
             state = 0;
         end
         if rotated
-            if last_rotated == 0
-                
-            end
             fprintf("Rotated");
             RP.Blue(MY_ROBOT_ID).rul = Crul(12, 0, 0, 0, 0);
             if norm(ball - coord) < 150
@@ -92,7 +89,7 @@ switch state
             fprintf("Not rotated");
             RP.Blue(MY_ROBOT_ID).rul = Crul(0, 0, 0, rot, 0);
         end
-        last_rot = rotated;
+        last_rot = rotated
         %fprintf("Got to point\n");
     case 10 
         RP.Blue(5).rul = go_to_point(RP.Blue(5).z, RP.Blue(5).ang, [500, 500], sp, 0, 150);

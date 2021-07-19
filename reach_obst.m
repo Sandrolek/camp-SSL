@@ -25,7 +25,7 @@ function [rul, res] = reach_obst(coord, target, ang, obstacles, sp, accur)
         %disp(obstacles(need_obst).z);
         %fprintf("Norm: %f\n", norm(coord - obstacles(need_obst).z));
 
-        if norm(coord - obst) < (R + 100)
+        if norm(coord - obst) < (R + 150)
             save_target = save_out(coord, obst, out, R);
             res_target = find_tangent(save_target, obst, R, target);
             %fprintf("Going out");
