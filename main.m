@@ -1,10 +1,10 @@
 %% MAIN START HEADER 
  
 global Blues Yellows Balls Rules FieldInfo RefState RefCommandForTeam RefPartOfFieldLeft RP PAR Modul activeAlgorithm gameStatus  
-global state
+global state last_rot
 sp = 15;
 k = 10;
-R = 270;
+R = 230;
 R_BALL = 150;
  
 if isempty(RP) 
@@ -34,19 +34,22 @@ zMain_End=RP.zMain_End;
  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
  
-% запоминать три пред состояния мяча при захвате
-% включать дриблер когда подъехали к мячу и после ехать определенное время,
-% а после этого пинать мяч снизу
+% проверка наличия препятствия на пути удара - если есть препятствие, то
+% ехать с объездом препятствий в центр ворот.
+% Потом придумать, что делать с вратарем
  
 %% CONTROL BLOCK 
 
-MY_ROBOT_ID = 7; % tipa define
+MY_ROBOT_ID = 5; % tipa define
 
-obstacles = [RP.Blue(1).z, R; RP.Blue(2).z, R; RP.Blue(3).z, R; RP.Blue(4).z, R; RP.Blue(5).z, R; RP.Blue(6).z, R; RP.Blue(8).z, R; RP.Ball.z, R_BALL];
+obstacles = [RP.Blue(1).z, R; RP.Blue(2).z, R; RP.Blue(3).z, R; RP.Blue(4).z, R; RP.Blue(7).z, R; RP.Blue(6).z, R; RP.Blue(8).z, R; RP.Ball.z, R_BALL];
 ball = RP.Ball.z;
 coord = RP.Blue(MY_ROBOT_ID).z;
 ang = RP.Blue(MY_ROBOT_ID).ang;
 goal = [-1500, 0];
+
+with_dribler = 0;
+now_time = 0;
 
 x1 = ball(1);
 y1 = ball(2);
@@ -79,14 +82,28 @@ switch state
             state = 0;
         end
         if rotated
-            if last_rotated == 0
-                
+            if last_rot == 0
+                with_dribler = 1;
+                next_time = cputime() + 2;
+                RP.Blue(MY_ROBOT_ID).rul.EnableSpinner = true;
+                RP.Blue(MY_ROBOT_ID).rul.SpinnerSpeed = 15;
             end
             fprintf("Rotated");
-            RP.Blue(MY_ROBOT_ID).rul = Crul(12, 0, 0, 0, 0);
-            if norm(ball - coord) < 150
-                fprintf("pinayu\n");
-                RP.Blue(MY_ROBOT_ID).rul = Crul(12, 0, 0, 0, 1);
+            
+            if with_dribler == 1
+                if cputime() > next_time()
+                    with_dribler = 0;
+                    RP.Blue(MY_ROBOT_ID).rul.EnableSpinner = false;
+                    RP.Blue(MY_ROBOT_ID).rul.SpinnerSpeed = 0;
+                else
+                RP.Blue(MY_ROBOT_ID).rul = Crul(12, 0, 0, 0, 0);   
+                end
+            else
+                RP.Blue(MY_ROBOT_ID).rul = Crul(12, 0, 0, 0, 0);
+                if norm(ball - coord) < 150
+                    fprintf("pinayu\n");
+                    RP.Blue(MY_ROBOT_ID).rul = Crul(12, 0, 0, 0, 1);
+                end
             end
         else
             fprintf("Not rotated");

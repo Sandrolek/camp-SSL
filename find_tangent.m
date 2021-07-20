@@ -34,8 +34,7 @@ function point = find_tangent(coord, obst, R, glob_target)
         tang_vec = tang_vec_2;
     end
     % choose one tangent
-    fprintf("Tang_vec: ");
-    disp(tang_vec);
+    
     
     point = coord + s * (tang_vec / norm(tang_vec));
 end

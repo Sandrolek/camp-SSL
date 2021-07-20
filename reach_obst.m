@@ -1,5 +1,5 @@
 function [rul, res] = reach_obst(coord, target, ang, obstacles, sp, accur)
-    out = 150;
+    out = 200;
     k = 10;
     rot = 0;
     
@@ -13,10 +13,9 @@ function [rul, res] = reach_obst(coord, target, ang, obstacles, sp, accur)
     else
         R = obstacles(need_obst, 3);
         obst = obstacles(need_obst, 1:2);
-        
+ 
         tangent = find_tangent(coord, obst, R, target);
-        fprintf("Tangent: ");
-        disp(tangent);
+        
         res_target = tangent;
 
         %fprintf("Coord: ");
@@ -27,7 +26,13 @@ function [rul, res] = reach_obst(coord, target, ang, obstacles, sp, accur)
 
         if norm(coord - obst) < (R + 150)
             save_target = save_out(coord, obst, out, R);
-            res_target = find_tangent(save_target, obst, R, target);
+            fprintf("Save_out\n");
+            targ_tang = find_tangent(save_target, obst, R, target);
+            if norm(target - targ_tang) < norm(target - save_target)
+                res_target = targ_tang;
+            else
+                res_target = save_target;
+            end
             %fprintf("Going out");
         else
             [rot, ~] = rotate_to_point(coord, ang, res_target, k);

@@ -12,7 +12,8 @@ function res = coll_point(coord, target, obstacles)
     obstacles_inter = [];
     %fprintf("Obstacles: ");
     %disp(obstacles);
-    for i = 1:size(obstacles)
+    sz = size(obstacles);
+    for i = 1:sz(1)
         d = abs(A * obstacles(i, 1) + B * obstacles(i, 2) + C) / sqrt(A^2 + B^2);
         if d <= obstacles(i, 3)
             %fprintf("I: %f, D: %f\n", i, d);
