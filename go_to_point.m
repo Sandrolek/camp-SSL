@@ -1,4 +1,4 @@
-function [rul, res] = go_to_point(coord, ang, target, sp, rot, accur)  
+function [rul, res] = go_to_point(coord, ang, target, sp, Pk, rot, accur)  
     x = target(1);
     y = target(2);
     %x_local = (x - coord(1)) * cos(ang) - (y - coord(2)) * sin(ang); 
@@ -13,7 +13,11 @@ function [rul, res] = go_to_point(coord, ang, target, sp, rot, accur)
     
     %fprintf("X: %f, Y: %f, Ang: %f, Sp_X: %f, Sp_Y: %f\n", coord(1), coord(2), ang_local, sp * cos(ang_local), -sp * sin(ang_local));
     
-    if norm([x - coord(1), y - coord(2)]) < accur
+    diff = norm(target - coord);
+    
+    sp = sp * diff * Pk;
+    
+    if norm(target - coord) < accur
         rul = Crul(0, 0, 0, rot, 0); 
         res = 1;    
     else

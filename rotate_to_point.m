@@ -18,7 +18,3 @@ function [rot, res] = rotate_to_point(coord, ang, target, k)
         res = 0;
     end
 end
-
-% предыдущее положение мяча помнить, при ударе учитывать
-% объезд поправить, + save_out
-% +- скорость

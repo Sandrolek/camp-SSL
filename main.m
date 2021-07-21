@@ -1,11 +1,20 @@
 %% MAIN START HEADER 
  
 global Blues Yellows Balls Rules FieldInfo RefState RefCommandForTeam RefPartOfFieldLeft RP PAR Modul activeAlgorithm gameStatus  
-global state last_rot
-sp = 15;
+global state last_rot ball_pos
+
+keeper_sp = 10;
+sp = 10;
+Pk = 0.006;
+
 k = 10;
+
 R = 230;
 R_BALL = 150;
+
+gate = [[1250, 430]; [1250, -550]];
+
+check_time = 0.1;
  
 if isempty(RP) 
     addpath tools RPtools MODUL 
@@ -17,6 +26,11 @@ end
 
 if isempty(last_rot)
     last_rot = 0;
+end
+
+if isempty(ball_pos)
+    ball_pos = [[0, 0]; [0, 0]; [0, 0]];
+    next_time = cputime() + check_time;
 end
 
 mainHeader(); 
@@ -41,11 +55,18 @@ zMain_End=RP.zMain_End;
 %% CONTROL BLOCK 
 
 MY_ROBOT_ID = 5; % tipa define
+KEEPER_ID = 8;
 
-obstacles = [RP.Blue(1).z, R; RP.Blue(2).z, R; RP.Blue(3).z, R; RP.Blue(4).z, R; RP.Blue(7).z, R; RP.Blue(6).z, R; RP.Blue(8).z, R; RP.Ball.z, R_BALL];
+obstacles = [RP.Blue(1).z, R; RP.Blue(2).z, R; RP.Blue(3).z, R; RP.Blue(4).z, R; RP.Blue(6).z, R; RP.Blue(7).z, R; RP.Blue(8).z, R; RP.Ball.z, R_BALL];
+
 ball = RP.Ball.z;
+
 coord = RP.Blue(MY_ROBOT_ID).z;
 ang = RP.Blue(MY_ROBOT_ID).ang;
+
+coord_keeper = RP.Blue(KEEPER_ID).z;
+ang_keeper = RP.Blue(KEEPER_ID).ang;
+
 goal = [-1500, 0];
 
 with_dribler = 0;
@@ -69,9 +90,11 @@ disp(vec);
 
 accur = 50;
 
+%%%%%%%%%%%%% НАПАДАЮЩИЙ (ATTACKER) %%%%%%%%%%%%%
+
 switch state
     case 0 
-        [RP.Blue(MY_ROBOT_ID).rul, res] = reach_obst(coord, vec, ang, obstacles, sp, accur);
+        [RP.Blue(MY_ROBOT_ID).rul, res] = reach_obst(coord, vec, ang, obstacles, 10, Pk, accur);
         %fprintf("Res: %d\n", res);
         if res == 1
             state = 1;
@@ -111,11 +134,38 @@ switch state
         end
         last_rot = rotated;
         %fprintf("Got to point\n");
-    case 10 
-        RP.Blue(5).rul = go_to_point(RP.Blue(5).z, RP.Blue(5).ang, [500, 500], sp, 0, 150);
-        RP.Blue(MY_ROBOT_ID).rul = go_to_point(coord, ang, [800, 800], sp, 0, 150);
 end
-%% END CONTRIL BLOCK 
+
+%%%%%%%%%%%%% ВРАТАРЬ (GOALKEEPER) %%%%%%%%%%%%%
+
+accur = 100;
+
+if cputime() > next_time
+    next_time = cputime() + check_time;
+    ball_pos(3, :) = ball_pos(2, :);
+    ball_pos(2, :) = ball_pos(1, :);
+    ball_pos(1, :) = ball;
+end
+
+if ball_pos(1, 1) > ball_pos(2, 1) && ball_pos(2, 1) > ball_pos(3, 1)
+    res_target = keeper_to_point(ball_pos, gate);
+else % если мяч движется, рассчитать его траекторию и передвинуться
+    res_target = keeper_to_line(ball, gate);
+   
+end
+
+% типа удар по мячу
+if norm(ball - coord_keeper) < 10
+    RP.Blue(KEEPER_ID).rul.AutoKick = 2;
+else
+    RP.Blue(KEEPER_ID).rul.AutoKick = 0;
+end
+
+%res_target = [0, 0];
+%rot = rotate_to_point(coord_keeper, ang_keeper, [0, coord_keeper(2)], k);
+%RP.Blue(KEEPER_ID).rul = go_to_point(coord_keeper, ang_keeper, res_target, keeper_sp, Pk, rot, accur);
+
+%% END CONTROL BLOCK 
  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
  

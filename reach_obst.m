@@ -1,4 +1,4 @@
-function [rul, res] = reach_obst(coord, target, ang, obstacles, sp, accur)
+function [rul, res] = reach_obst(coord, target, ang, obstacles, sp, Pk, accur)
     out = 200;
     k = 10;
     rot = 0;
@@ -39,7 +39,7 @@ function [rul, res] = reach_obst(coord, target, ang, obstacles, sp, accur)
         end
     end
 
-    [rul, res] = go_to_point(coord, ang, res_target, sp, rot, accur);
+    [rul, res] = go_to_point(coord, ang, res_target, sp, Pk, rot, accur);
         
     if res_target ~= target
         res = 0;
