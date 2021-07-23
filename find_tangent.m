@@ -13,8 +13,8 @@ function point = find_tangent(coord, obst, R, glob_target)
     %disp(obst);
     
     %fprintf("Norm: %f, R: %f\n", sqrt((obst(1) - coord(1))^2 + (obst(2) - coord(2))^2), R);
-    if (norm(obst - coord)) > R
-        s = sqrt((norm(obst - coord))^2 - R^2);
+    if norm(vec) > R
+        s = sqrt(norm(vec)^2 - R^2);
     else
         s = 1;
     end
@@ -26,15 +26,12 @@ function point = find_tangent(coord, obst, R, glob_target)
     rot_vec_2 = [x * cosa + y * sina, -x * sina + y * cosa];
     tang_vec_2 = s * rot_vec_2 / norm(rot_vec_2);
     
+    % choose one tangent
     if norm(target - tang_vec_1) < norm(target - tang_vec_2)
-        %fprintf("Choosed 1\n");
         tang_vec = tang_vec_1;
     else
-        %fprintf("Choosed 2\n");
         tang_vec = tang_vec_2;
     end
-    % choose one tangent
     
-    
-    point = coord + s * (tang_vec / norm(tang_vec));
+    point = coord + tang_vec;
 end

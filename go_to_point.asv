@@ -1,14 +1,8 @@
 function [rul, res] = go_to_point(coord, ang, target, sp, rot, accur)  
     
-    if target(1) > 800 && target(2) > -550 && target(2) < 430
-        target(1) = 800;
-        target(2) = 0;
-    end
+    gate = [[-1250, 430]; [-1250, -550]];
     
-    if target(1) < -800 && target(2) > -550 && target(2) < 430
-        target(1) = -800;
-        target(2) = 0;
-    end
+    if target(1)
 
     x = target(1);
     y = target(2);

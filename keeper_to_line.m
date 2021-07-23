@@ -8,7 +8,7 @@ function res = keeper_to_line(ball, gate)
     elseif target(2) < gate(2, 2)
         target(2) = gate(2, 2);
     end
-    fprintf("Targrt: ");
+    fprintf("Target: ");
     disp(target);
     res = target;
 end
